@@ -22,24 +22,10 @@ function display_query_results($query) {
     wp_reset_postdata();
 }
 
-function wp_query_tester_menu() {
-    add_menu_page(
-        'WP_Query Tester',
-        'WP_Query Tester',
-        'manage_options',
-        'wp-query-tester',
-        'wp_query_tester_admin_page',
-        'dashicons-database-view',
-        100
-    );
-}
-add_action('admin_menu', 'wp_query_tester_menu');
-
-function wp_query_tester_admin_page() {
-    echo '<div class="wrap">';
-    echo '<h1>WP_Query Tester</h1>';
-
+function wp_query_tester_shortcode() {
     ob_start();
+    echo '<div class="wrap">';
+    echo '<h1>WP_Query Tester</h1>';   
     echo '<h2>WP_Query Tester Results</h2>';
 
     echo '<h3>Query 1: All Posts</h3>';
@@ -48,13 +34,31 @@ function wp_query_tester_admin_page() {
     ));
     display_query_results($query1);
 
-    echo '<h3>Query 2: All Posts (Don\'t Ignore Sticky Posts)</h3>';
+    echo '<h3>Query 2: All Posts (Ignore Sticky Posts)</h3>';
     $query2 = new WP_Query(array(
         'posts_per_page' => -1,
-        'ignore_sticky_posts' => 0
+        'ignore_sticky_posts' => 1
     ));
     display_query_results($query2);
 
+    echo '<h3>Query 3: Author 1</h3>';
+    $query3 = new WP_Query(array(
+        'posts_per_page' => -1,
+        'author__in' => array(1)
+    ));
+    display_query_results($query3);
+
+    echo '<h3>Query 4: Slug</h3>';
+    $query4 = new WP_Query(array(
+        'posts_per_page' => -1,
+        'post_name__in'=> array ('not-sticky-1'),
+    ));
+    display_query_results($query4);
+
     echo '</div>';
+    return ob_get_clean();
+
 }
-?>
+
+add_shortcode('wp_query_tester', 'wp_query_tester_shortcode');
+
